@@ -1,0 +1,19 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../Repositories"
+		},
+		{
+			"path": "../Controllers"
+		},
+		{
+			"path": "../Config"
+		},
+		{
+			"path": ".."
+		}
+	]
+}
