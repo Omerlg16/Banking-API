@@ -1,15 +1,14 @@
-from os import name
-
+import os
 import psycopg2
+from dotenv import load_dotenv
+
+load_dotenv()
+
 def get_connection():
     connection = psycopg2.connect(
-        host = "localhost",
-        dbname = "Banque",
-        user = "postgres",
-        password = "000000",
+        user=os.environ.get("DB_USER"),
+        host=os.environ.get("DB_HOST"),
+        dbname=os.environ.get("DB_NAME"),
+        password=os.environ.get("DB_PASSWORD")
     )
     return connection
-if __name__ == "__main__":
-    connection = get_connection()
-    print('connexion reussie ')
-    connection.close()

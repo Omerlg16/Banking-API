@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Banking API — Démo</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 500px; margin: 50px auto; background: #f4f4f4; }
+        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h2 { color: #1F3864; }
+        input { width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box; }
+        button { background: #1F3864; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; width: 100%; }
+        button:hover { background: #16294a; }
+        #message { margin-top: 10px; font-weight: bold; }
+        #dashboard { display: none; }
+        .solde { font-size: 28px; color: #1F3864; text-align: center; margin: 15px 0; }
+    </style>
+</head>
+<body>
+
+    <div class="card" id="loginCard">
+        <h2>Connexion</h2>
+        <input type="email" id="email" placeholder="Email" value="test2@test.com">
+        <input type="password" id="password" placeholder="Mot de passe" value="test123">
+        <button onclick="login()">Se connecter</button>
+        <p id="message"></p>
+    </div>
+
+    <div class="card" id="dashboard">
+        <h2>Compte n°1</h2>
+        <div class="solde" id="soldeAffiche">-- FC</div>
+        <input type="number" id="montant" placeholder="Montant">
+        <button onclick="deposit()">Déposer</button>
+        <button onclick="withdraw()" style="margin-top:10px; background:#8b2020;">Retirer</button>
+        <p id="dashMessage"></p>
+    </div>
+
+<script>
+    let token = "";
+
+    async function login() {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        const response = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await response.json();
+
+        if (data.error) {
+            document.getElementById("message").innerText = data.error;
+            return;
+        }
+
+        token = data.token;
+        document.getElementById("loginCard").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+        checkBalance();
+    }
+
+    async function checkBalance() {
+        const response = await fetch("/api/accounts/1/deposit", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
+            },
+            body: JSON.stringify({ amount: 0 })
+        });
+        const data = await response.json();
+        if (data.solde !== undefined) {
+            document.getElementById("soldeAffiche").innerText = data.solde + " FC";
+        }
+    }
+
+    async function deposit() {
+        const montant = document.getElementById("montant").value;
+        const response = await fetch("/api/accounts/1/deposit", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
+            },
+            body: JSON.stringify({ amount: parseInt(montant) })
+        });
+        const data = await response.json();
+        if (data.error) {
+            document.getElementById("dashMessage").innerText = data.error;
+        } else {
+            document.getElementById("soldeAffiche").innerText = data.solde + " FC";
+            document.getElementById("dashMessage").innerText = "Dépôt effectué !";
+        }
+    }
+
+    async function withdraw() {
+        const montant = document.getElementById("montant").value;
+        const response = await fetch("/api/accounts/1/withdraw", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
+            },
+            body: JSON.stringify({ amount: parseInt(montant) })
+        });
+        const data = await response.json();
+        if (data.error) {
+            document.getElementById("dashMessage").innerText = data.error;
+        } else {
+            document.getElementById("soldeAffiche").innerText = data.solde + " FC";
+            document.getElementById("dashMessage").innerText = "Retrait effectué !";
+        }
+    }
+</script>
+</body>
+</html>

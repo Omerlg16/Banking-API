@@ -1,0 +1,1 @@
+web: gunicorn --chdir Controllers account_controller:app
