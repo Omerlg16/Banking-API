@@ -11,29 +11,6 @@ app = Flask(__name__, template_folder=os.path.join(os.path.dirname(__file__), ".
 def home():
     return render_template("index.html")
 
-
-@app.route("/setup-db-temporaire-xk92j")
-def setup_db():
-    connection = get_connection()
-    cursor = connection.cursor()
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS accounts (
-            id SERIAL PRIMARY KEY,
-            client VARCHAR(100),
-            solde INTEGER DEFAULT 0
-        );
-        CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
-            email VARCHAR(100) UNIQUE NOT NULL,
-            password_hash VARCHAR(255) NOT NULL
-        );
-    """)
-    cursor.execute("INSERT INTO accounts (client, solde) VALUES ('Omer', 500000)")
-    connection.commit()
-    connection.close()
-    return "Base initialisée avec succès"
-
-
 @app.route("/api/accounts/<int:account_id>/deposit", methods=["POST"])
 def deposit_route(account_id):
     auth_header = request.headers.get("Authorization")
