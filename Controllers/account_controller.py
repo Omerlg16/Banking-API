@@ -1,7 +1,6 @@
 from flask import Flask, jsonify, request, render_template
-from Services.account_service import deposit, withdraw
+from Services.account_service import balance, deposit, withdraw
 from Services.auth_service import register, login, verify_token
-from Config.database import get_connection
 import os
 
 app = Flask(__name__, template_folder=os.path.join(os.path.dirname(__file__), "..", "templates"))
@@ -10,6 +9,27 @@ app = Flask(__name__, template_folder=os.path.join(os.path.dirname(__file__), ".
 @app.route("/")
 def home():
     return render_template("index.html")
+
+
+@app.route("/api/accounts/<int:account_id>/balance", methods=["GET"])
+def balance_route(account_id):
+    auth_header = request.headers.get("Authorization")
+    if not auth_header:
+        return jsonify({"error": "Token manquant"}), 401
+
+    token = auth_header.replace("Bearer ", "")
+
+    payload, erreur = verify_token(token)
+    if erreur:
+        return jsonify({"error": erreur}), 401
+
+    resultat, erreur = balance(account_id)
+
+    if erreur:
+        return jsonify({"error": erreur}), 404
+
+    return jsonify({"solde": resultat}), 200
+
 
 @app.route("/api/accounts/<int:account_id>/deposit", methods=["POST"])
 def deposit_route(account_id):

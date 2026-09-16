@@ -19,8 +19,8 @@
 
     <div class="card" id="loginCard">
         <h2>Connexion</h2>
-        <input type="email" id="email" placeholder="Email" value="omerlongondjo4@gmail.com">
-        <input type="password" id="password" placeholder="Mot de passe" value="omer123">
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Mot de passe">
         <button onclick="login()">Se connecter</button>
         <p id="message"></p>
     </div>
@@ -60,13 +60,11 @@
     }
 
     async function checkBalance() {
-        const response = await fetch("/api/accounts/1/deposit", {
-            method: "POST",
+        const response = await fetch("/api/accounts/1/balance", {
+            method: "GET",
             headers: {
-                "Content-Type": "application/json",
                 "Authorization": "Bearer " + token
-            },
-            body: JSON.stringify({ amount: 0 })
+            }
         });
         const data = await response.json();
         if (data.solde !== undefined) {

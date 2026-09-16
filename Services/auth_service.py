@@ -1,18 +1,25 @@
 # pylint: disable=import-error
+import os
+from datetime import datetime, timedelta, timezone
+
 import bcrypt
 import jwt
-from datetime import datetime, timedelta
-from Repositories.user_repository import create_user, find_by_email
-import os
 from dotenv import load_dotenv
+
+from Repositories.user_repository import create_user, find_by_email
 
 load_dotenv()
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError("La variable d'environnement SECRET_KEY n'est pas définie")
 
 
 
 def register(email, password):
+    if not email or not password:
+        return None, "Email et mot de passe requis"
+
     utilisateur_existant = find_by_email(email)
 
     if utilisateur_existant is not None:
@@ -26,6 +33,9 @@ def register(email, password):
 
 
 def login(email, password):
+    if not email or not password:
+        return None, "Email et mot de passe requis"
+
     utilisateur = find_by_email(email)
 
     if utilisateur is None:
@@ -40,7 +50,7 @@ def login(email, password):
     token = jwt.encode(
         {
             "email": email,
-            "exp": datetime.utcnow() + timedelta(hours=2)
+            "exp": datetime.now(timezone.utc) + timedelta(hours=2)
         },
         SECRET_KEY,
         algorithm="HS256"

@@ -1,6 +1,25 @@
 from Repositories.account_repository import find_by_id, update_balance
 
+def _montant_invalide(amount):
+    if not isinstance(amount, (int, float)) or isinstance(amount, bool):
+        return "Montant invalide"
+    if amount <= 0:
+        return "Le montant doit être positif"
+    return None
+
+def balance(account_id):
+    compte = find_by_id(account_id)
+
+    if compte is None:
+        return None, "Compte introuvable"
+
+    return compte[2], None
+
 def withdraw(account_id, amount):
+    erreur = _montant_invalide(amount)
+    if erreur:
+        return None, erreur
+
     compte = find_by_id(account_id)          # récupère le compte via le repository
 
     if compte is None:
@@ -18,8 +37,12 @@ def withdraw(account_id, amount):
 
     return nouveau_solde, None
 def deposit(account_id, amount):
+    erreur = _montant_invalide(amount)
+    if erreur:
+        return None, erreur
+
     compte = find_by_id(account_id)
-    
+
     if compte is None:
         return None, "Compte introuvable"
     solde_actuel = compte[2]
