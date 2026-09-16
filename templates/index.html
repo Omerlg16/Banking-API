@@ -159,7 +159,7 @@
             box-shadow: 0 12px 26px rgba(139,32,32,0.45);
         }
 
-        #message, #dashMessage {
+        #message, #dashMessage, #regMessage {
             min-height: 18px;
             margin-top: 14px;
             font-size: 13.5px;
@@ -168,7 +168,26 @@
             text-align: center;
         }
 
-        #dashboard {
+        .switch-link {
+            display: block;
+            text-align: center;
+            margin-top: 18px;
+            font-size: 13.5px;
+            color: #8a92a8;
+        }
+
+        .switch-link a {
+            color: var(--navy);
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .switch-link a:hover {
+            text-decoration: underline;
+        }
+
+        #loginCard, #dashboard {
             display: none;
         }
 
@@ -214,6 +233,17 @@
         <span>Banking API</span>
     </div>
 
+    <div class="card" id="registerCard">
+        <h2>Créer un compte</h2>
+        <label for="regEmail">Email</label>
+        <input type="email" id="regEmail" placeholder="vous@exemple.com">
+        <label for="regPassword">Mot de passe</label>
+        <input type="password" id="regPassword" placeholder="••••••••">
+        <button onclick="register()">Créer mon compte</button>
+        <p id="regMessage"></p>
+        <span class="switch-link">Déjà un compte ? <a onclick="showLogin()">Se connecter</a></span>
+    </div>
+
     <div class="card" id="loginCard">
         <h2>Connexion</h2>
         <label for="email">Email</label>
@@ -222,10 +252,11 @@
         <input type="password" id="password" placeholder="••••••••">
         <button onclick="login()">Se connecter</button>
         <p id="message"></p>
+        <span class="switch-link">Pas encore de compte ? <a onclick="showRegister()">En créer un</a></span>
     </div>
 
     <div class="card" id="dashboard">
-        <h2>Compte n°1</h2>
+        <h2>Mon compte</h2>
         <div class="solde-box">
             <div class="solde-label">Solde disponible</div>
             <div class="solde" id="soldeAffiche">-- FC</div>
@@ -239,6 +270,38 @@
 
 <script>
     let token = "";
+
+    function showLogin() {
+        document.getElementById("registerCard").style.display = "none";
+        document.getElementById("loginCard").style.display = "block";
+    }
+
+    function showRegister() {
+        document.getElementById("loginCard").style.display = "none";
+        document.getElementById("registerCard").style.display = "block";
+    }
+
+    async function register() {
+        const email = document.getElementById("regEmail").value;
+        const password = document.getElementById("regPassword").value;
+
+        const response = await fetch("/api/auth/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await response.json();
+
+        if (data.error) {
+            document.getElementById("regMessage").innerText = data.error;
+            return;
+        }
+
+        document.getElementById("email").value = email;
+        document.getElementById("regMessage").innerText = "";
+        showLogin();
+        document.getElementById("message").innerText = "Compte créé, connecte-toi.";
+    }
 
     async function login() {
         const email = document.getElementById("email").value;
@@ -263,7 +326,7 @@
     }
 
     async function checkBalance() {
-        const response = await fetch("/api/accounts/1/balance", {
+        const response = await fetch("/api/accounts/me/balance", {
             method: "GET",
             headers: {
                 "Authorization": "Bearer " + token
@@ -277,7 +340,7 @@
 
     async function deposit() {
         const montant = document.getElementById("montant").value;
-        const response = await fetch("/api/accounts/1/deposit", {
+        const response = await fetch("/api/accounts/me/deposit", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -296,7 +359,7 @@
 
     async function withdraw() {
         const montant = document.getElementById("montant").value;
-        const response = await fetch("/api/accounts/1/withdraw", {
+        const response = await fetch("/api/accounts/me/withdraw", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

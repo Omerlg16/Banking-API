@@ -6,7 +6,7 @@ import bcrypt
 import jwt
 from dotenv import load_dotenv
 
-from Repositories.user_repository import create_user, find_by_email
+from Repositories.user_repository import create_user_with_account, find_by_email
 
 load_dotenv()
 
@@ -27,7 +27,7 @@ def register(email, password):
 
     password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
-    create_user(email, password_hash.decode('utf-8'))
+    create_user_with_account(email, password_hash.decode('utf-8'))
 
     return email, None
 
@@ -49,6 +49,7 @@ def login(email, password):
 
     token = jwt.encode(
         {
+            "user_id": utilisateur[0],
             "email": email,
             "exp": datetime.now(timezone.utc) + timedelta(hours=2)
         },

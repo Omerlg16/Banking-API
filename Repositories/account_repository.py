@@ -4,7 +4,16 @@ def find_by_id(account_id):
     connection = get_connection()
     try:
         cursor = connection.cursor()
-        cursor.execute("SELECT * FROM accounts WHERE id = %s", (account_id,))
+        cursor.execute("SELECT id, user_id, client, solde FROM accounts WHERE id = %s", (account_id,))
+        return cursor.fetchone()
+    finally:
+        connection.close()
+
+def find_by_user_id(user_id):
+    connection = get_connection()
+    try:
+        cursor = connection.cursor()
+        cursor.execute("SELECT id, user_id, client, solde FROM accounts WHERE user_id = %s", (user_id,))
         return cursor.fetchone()
     finally:
         connection.close()

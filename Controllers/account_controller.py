@@ -11,8 +11,8 @@ def home():
     return render_template("index.html")
 
 
-@app.route("/api/accounts/<int:account_id>/balance", methods=["GET"])
-def balance_route(account_id):
+@app.route("/api/accounts/me/balance", methods=["GET"])
+def balance_route():
     auth_header = request.headers.get("Authorization")
     if not auth_header:
         return jsonify({"error": "Token manquant"}), 401
@@ -23,7 +23,7 @@ def balance_route(account_id):
     if erreur:
         return jsonify({"error": erreur}), 401
 
-    resultat, erreur = balance(account_id)
+    resultat, erreur = balance(payload["user_id"])
 
     if erreur:
         return jsonify({"error": erreur}), 404
@@ -31,8 +31,8 @@ def balance_route(account_id):
     return jsonify({"solde": resultat}), 200
 
 
-@app.route("/api/accounts/<int:account_id>/deposit", methods=["POST"])
-def deposit_route(account_id):
+@app.route("/api/accounts/me/deposit", methods=["POST"])
+def deposit_route():
     auth_header = request.headers.get("Authorization")
     if not auth_header:
         return jsonify({"error": "Token manquant"}), 401
@@ -46,7 +46,7 @@ def deposit_route(account_id):
     data = request.get_json()
     amount = data.get("amount")
 
-    resultat, erreur = deposit(account_id, amount)
+    resultat, erreur = deposit(payload["user_id"], amount)
 
     if erreur:
         return jsonify({"error": erreur}), 400
@@ -54,8 +54,8 @@ def deposit_route(account_id):
     return jsonify({"solde": resultat}), 200
 
 
-@app.route("/api/accounts/<int:account_id>/withdraw", methods=["POST"])
-def withdraw_route(account_id):
+@app.route("/api/accounts/me/withdraw", methods=["POST"])
+def withdraw_route():
     auth_header = request.headers.get("Authorization")
     if not auth_header:
         return jsonify({"error": "Token manquant"}), 401
@@ -69,7 +69,7 @@ def withdraw_route(account_id):
     data = request.get_json()
     amount = data.get("amount")
 
-    resultat, erreur = withdraw(account_id, amount)
+    resultat, erreur = withdraw(payload["user_id"], amount)
 
     if erreur:
         return jsonify({"error": erreur}), 400
